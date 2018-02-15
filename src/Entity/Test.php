@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -29,9 +30,19 @@ class Test
     private $direction;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $barrier;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Question", mappedBy="test")
      */
     private $questions;
+
+    public function __construct()
+    {
+        $this->questions = new ArrayCollection();
+    }
 
     /**
      * @return mixed
@@ -87,5 +98,21 @@ class Test
     public function setQuestions($questions): void
     {
         $this->questions = $questions;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBarrier()
+    {
+        return $this->barrier;
+    }
+
+    /**
+     * @param mixed $barrier
+     */
+    public function setBarrier($barrier): void
+    {
+        $this->barrier = $barrier;
     }
 }

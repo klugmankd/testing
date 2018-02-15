@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="controller" data-route="/directions">
+        <div class="createForm" data-action="create">
+            <h3>Creating direction</h3>
+            <div class="form-group">
+                <input type="text" class="input" name="name" placeholder="name">
+            </div>
+            <div class="form-group">
+                <button>create</button>
+            </div>
+        </div>
+        <br>
+        <div class="readAllForm" data-action="readAll">
+            <h3>Show all directions</h3>
+            <div class="form-group">
+                <button>read all</button>
+            </div>
+        </div>
+        <br>
+        <div class="readForm" data-action="read">
+            <h3>Show direction</h3>
+            <div class="form-group">
+                <input type="text" class="input" name="id" placeholder="id">
+            </div>
+            <div class="form-group">
+                <button>read</button>
+            </div>
+        </div>
+        <div class="updateForm" data-action="update">
+            <h3>Update direction</h3>
+            <div class="form-group">
+                <input type="text" class="input" name="id" placeholder="id">
+            </div>
+            <div class="form-group">
+                <input type="text" class="input" name="name" placeholder="name">
+            </div>
+            <div class="form-group">
+                <button>update</button>
+            </div>
+        </div>
+        <div class="deleteForm" data-action="delete">
+            <h3>Delete direction</h3>
+            <div class="form-group">
+                <input type="text" class="input" name="id" placeholder="id">
+            </div>
+            <div class="form-group">
+                <button>delete</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
+{% endblock %}

@@ -11,26 +11,57 @@ class LuckyController extends Controller
 {
 
     /**
-     * @Route("/")
+     * @Route("/direction")
      */
-    public function index()
+    public function directions()
     {
-        return $this->render('vue.html.twig', array(
-            'number' => $number,
-            'max' => $max
-        ));
+        return $this->render('directions.html.twig');
     }
 
     /**
-     * @Route("/lucky/number/{max}", name="app_lucky_number")
+     * @Route("/difficulty")
      */
-    public function number($max)
+    public function difficulties()
     {
-        $number = mt_rand(0, $max);
+        return $this->render('difficulties.html.twig');
+    }
 
-        return $this->render('lucky/number.html.twig', array(
-            'number' => $number,
-            'max' => $max
-        ));
+    /**
+     * @Route("/test")
+     */
+    public function test()
+    {
+        $directions = $this->getDoctrine()
+            ->getRepository('App:Direction')
+            ->findAll();
+
+        $difficulties = $this->getDoctrine()
+            ->getRepository('App:Difficulty')
+            ->findAll();
+
+        return $this->render(
+            'tests.html.twig',
+            array(
+                "directions" => $directions,
+                "difficulties" => $difficulties
+            )
+        );
+    }
+
+    /**
+     * @Route("/question")
+     */
+    public function question()
+    {
+        $tests = $this->getDoctrine()
+            ->getRepository('App:Test')
+            ->findAll();
+
+        return $this->render(
+            'questions.html.twig',
+            array(
+                "tests" => $tests
+            )
+        );
     }
 }

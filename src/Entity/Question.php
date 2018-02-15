@@ -22,7 +22,7 @@ class Question
     private $text;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Test")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="questions")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id")
      */
     private $test;
