@@ -33,14 +33,6 @@ class Answer
     private $question;
 
     /**
-     * @param mixed $id
-     */
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @return mixed
      */
     public function getText()
@@ -86,5 +78,13 @@ class Answer
     public function setQuestion($question): void
     {
         $this->question = $question;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 }

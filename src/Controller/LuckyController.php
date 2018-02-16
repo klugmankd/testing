@@ -64,4 +64,21 @@ class LuckyController extends Controller
             )
         );
     }
+
+    /**
+     * @Route("/answer")
+     */
+    public function answer()
+    {
+        $questions = $this->getDoctrine()
+            ->getRepository('App:Question')
+            ->findAll();
+
+        return $this->render(
+            'answers.html.twig',
+            array(
+                "questions" => $questions
+            )
+        );
+    }
 }

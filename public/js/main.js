@@ -7,6 +7,14 @@ var searchFields = function (object) {
 
     for (var index = 0; index < fields.length; index++) {
         var field = fields[index];
+        switch (field.type) {
+            case 'checkbox':
+                field.value = field.checked;
+                break;
+            default:
+                break;
+        }
+
         data[field.name] = field.value;
     }
 
@@ -34,9 +42,7 @@ $(document).on('click', '.readAllForm .form-group button', function () {
         type: "GET",
         url: route,
         success: function(data) {
-            if (data.hasOwnProperty('stringifier')) {
-                data = JSON.parse(data.jsonResponse);
-            }
+            data = (data.hasOwnProperty('stringifier')) ? JSON.parse(data.jsonResponse) : data;
             console.log(data);
         }
     })
@@ -48,9 +54,7 @@ $(document).on('click', '.readForm .form-group button', function () {
         type: "GET",
         url: route + "/" + data.data.id,
         success: function(data) {
-            if (data.hasOwnProperty('stringifier')) {
-                data = JSON.parse(data.jsonResponse);
-            }
+            data = (data.hasOwnProperty('stringifier')) ? JSON.parse(data.jsonResponse) : data;
             console.log(data);
         }
     })
