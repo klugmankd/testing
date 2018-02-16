@@ -32,6 +32,11 @@ class Question
      */
     private $answers;
 
+    public function __toString()
+    {
+        return $this->text;
+    }
+
     /**
      * @return mixed
      */

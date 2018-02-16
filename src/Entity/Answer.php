@@ -27,7 +27,7 @@ class Answer
     private $isCorrect;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Question")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="answers")
      * @ORM\JoinColumn(name="question_id", referencedColumnName="id")
      */
     private $question;

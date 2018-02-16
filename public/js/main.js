@@ -34,6 +34,9 @@ $(document).on('click', '.readAllForm .form-group button', function () {
         type: "GET",
         url: route,
         success: function(data) {
+            if (data.hasOwnProperty('stringifier')) {
+                data = JSON.parse(data.jsonResponse);
+            }
             console.log(data);
         }
     })
@@ -45,6 +48,9 @@ $(document).on('click', '.readForm .form-group button', function () {
         type: "GET",
         url: route + "/" + data.data.id,
         success: function(data) {
+            if (data.hasOwnProperty('stringifier')) {
+                data = JSON.parse(data.jsonResponse);
+            }
             console.log(data);
         }
     })
