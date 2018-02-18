@@ -22,6 +22,11 @@ class Question
     private $text;
 
     /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $points;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="questions")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id")
      */
@@ -31,6 +36,7 @@ class Question
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question")
      */
     private $answers;
+
 
     public function __toString()
     {
@@ -91,5 +97,21 @@ class Question
     public function setAnswers($answers): void
     {
         $this->answers = $answers;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPoints()
+    {
+        return $this->points;
+    }
+
+    /**
+     * @param mixed $points
+     */
+    public function setPoints($points): void
+    {
+        $this->points = $points;
     }
 }

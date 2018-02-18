@@ -13,16 +13,17 @@ class TestRepository extends ServiceEntityRepository
         parent::__construct($registry, Test::class);
     }
 
-    /*
-    public function findBySomething($value)
+
+    public function findTestIds($direction, $difficulty)
     {
         return $this->createQueryBuilder('t')
-            ->where('t.something = :value')->setParameter('value', $value)
+            ->select('t.id')
+            ->where('t.direction = :direction')
+            ->andWhere('t.difficulty = :difficulty')
+            ->setParameter('direction', $direction)
+            ->setParameter('difficulty', $difficulty)
             ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
 }

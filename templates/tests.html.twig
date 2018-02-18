@@ -81,6 +81,28 @@
                 <button>delete</button>
             </div>
         </div>
+        <div class="readRandomForm" data-action="readRandom">
+            <h3>Read random</h3>
+            <div class="form-group">
+                <select name="difficulty" class="input">
+                    <option disabled selected>difficulty</option>
+                    {% for difficulty in difficulties %}
+                        <option value="{{ difficulty.id }}">{{ difficulty.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="direction" class="input">
+                    <option disabled selected>direction</option>
+                    {% for direction in directions %}
+                        <option value="{{ direction.id }}">{{ direction.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button>read random</button>
+            </div>
+        </div>
     </div>
 {% endblock %}
 

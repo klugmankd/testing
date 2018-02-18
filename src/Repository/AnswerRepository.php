@@ -13,16 +13,19 @@ class AnswerRepository extends ServiceEntityRepository
         parent::__construct($registry, Answer::class);
     }
 
-    /*
-    public function findBySomething($value)
+
+    public function findCorrectByQuestion($question)
     {
         return $this->createQueryBuilder('a')
-            ->where('a.something = :value')->setParameter('value', $value)
+            ->select('a.id')
+            ->where('a.question = :question')
+            ->andWhere('a.isCorrect = :isCorrect')
+            ->setParameter('question', $question)
+            ->setParameter('isCorrect', 1)
             ->orderBy('a.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
 }

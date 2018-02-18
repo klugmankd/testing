@@ -81,4 +81,14 @@ class LuckyController extends Controller
             )
         );
     }
+
+    /**
+     *@Route("/start-test")
+     */
+    public function startTest()
+    {
+        return $this->render(
+            'test.html.twig'
+        );
+    }
 }

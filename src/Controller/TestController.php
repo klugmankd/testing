@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Test;
+use Doctrine\ORM\QueryBuilder;
+use JMS\Serializer\SerializerBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TestController extends Controller
 {
@@ -54,9 +57,9 @@ class TestController extends Controller
             ->getRepository('App:Test')
             ->find($id);
 
-        return $this->json(
-            $test
-        );
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($test, 'json');
+        return $this->json($jsonResponse);
     }
 
     /**
@@ -69,9 +72,9 @@ class TestController extends Controller
             ->getRepository('App:Test')
             ->findAll();
 
-        return $this->json(
-            $tests
-        );
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($tests, 'json');
+        return $this->json($jsonResponse);
     }
 
     /**
@@ -131,5 +134,59 @@ class TestController extends Controller
                 'result' => 'success'
             )
         );
+    }
+
+    /**
+     * @Route("/tests/random/{direction}/{difficulty}", name="tests_get_random")
+     * @Method({"GET"})
+     * @param $direction
+     * @param $difficulty
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function readRandomAction($direction, $difficulty)
+    {
+        $repository = $this->getDoctrine()
+            ->getRepository('App:Test');
+
+        $ids = $repository->findTestIds($direction, $difficulty);
+
+        $arIds = array();
+        foreach ($ids as $id)
+            $arIds[] = $id;
+
+        $index = rand(0, count($arIds) - 1);
+
+        $id = $arIds[$index];
+
+        $test = $repository->find($id);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($test, 'json');
+        return $this->json($jsonResponse);
+    }
+
+
+    //check test route TODO
+    /**
+     * @Route("/tests/check", name="tests_check")
+     * @Method({"POST"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function checkAction(Request $request)
+    {
+        $test = $this->getDoctrine()
+            ->getRepository('App:Test')
+            ->find($request->get('test'));
+
+        $questions = $request->get('answers');
+
+        $correctAnswers = array();
+        foreach ($test->getQuestions() as $key => $question) {
+            $correctAnswers[]['answers'] = $this->getDoctrine()
+                ->getRepository('App:Answer')
+                ->findCorrectByQuestion($question);
+
+        }
+        return $this->json($correctAnswers);
     }
 }

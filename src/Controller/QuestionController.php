@@ -54,12 +54,7 @@ class QuestionController extends Controller
 
         $serializer = SerializerBuilder::create()->build();
         $jsonResponse = $serializer->serialize($question, 'json');
-        return $this->json(
-            array(
-                "jsonResponse" => $jsonResponse,
-                "stringifier" => true
-            )
-        );
+        return $this->json($jsonResponse);
     }
 
     /**
@@ -74,12 +69,7 @@ class QuestionController extends Controller
 
         $serializer = SerializerBuilder::create()->build();
         $jsonResponse = $serializer->serialize($questions, 'json');
-        return $this->json(
-            array(
-                "jsonResponse" => $jsonResponse,
-                "stringifier" => true
-            )
-        );
+        return $this->json($jsonResponse);
     }
 
     /**

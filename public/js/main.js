@@ -42,7 +42,7 @@ $(document).on('click', '.readAllForm .form-group button', function () {
         type: "GET",
         url: route,
         success: function(data) {
-            data = (data.hasOwnProperty('stringifier')) ? JSON.parse(data.jsonResponse) : data;
+            data = (typeof data === 'string') ? JSON.parse(data) : data;
             console.log(data);
         }
     })
@@ -54,7 +54,7 @@ $(document).on('click', '.readForm .form-group button', function () {
         type: "GET",
         url: route + "/" + data.data.id,
         success: function(data) {
-            data = (data.hasOwnProperty('stringifier')) ? JSON.parse(data.jsonResponse) : data;
+            data = (typeof data === 'string') ? JSON.parse(data) : data;
             console.log(data);
         }
     })
@@ -83,3 +83,15 @@ $(document).on('click', '.deleteForm .form-group button', function () {
     })
 });
 
+
+$(document).on('click', '.readRandomForm .form-group button', function () {
+    var data = searchFields(this);
+    $.ajax({
+        type: "GET",
+        url: route + '/random/' + data.data.direction + '/' + data.data.difficulty,
+        success: function(data) {
+            data = (typeof data === 'string') ? JSON.parse(data) : data;
+            console.log(data);
+        }
+    })
+});
