@@ -165,7 +165,6 @@ class TestController extends Controller
     }
 
 
-    //check test route TODO
     /**
      * @Route("/tests/check", name="tests_check")
      * @Method({"POST"})
@@ -177,16 +176,49 @@ class TestController extends Controller
         $test = $this->getDoctrine()
             ->getRepository('App:Test')
             ->find($request->get('test'));
+        $questions = $this->getDoctrine()
+            ->getRepository('App:Question')
+            ->findCorrectAnswers($test);
+        $answers = $request->get('answers');
+        $userResults = array();
 
-        $questions = $request->get('answers');
+        // User::points
+        $userPoints = 0;
+        foreach ($questions as $key => $question) {
+            $correctAnswers = array();
+            foreach ($question->getAnswers() as $answer) {
+                $correctAnswers[] = $answer->getId();
+            }
+            $correctCount = count($correctAnswers);
 
-        $correctAnswers = array();
-        foreach ($test->getQuestions() as $key => $question) {
-            $correctAnswers[]['answers'] = $this->getDoctrine()
-                ->getRepository('App:Answer')
-                ->findCorrectByQuestion($question);
+            $userAnswerTrueCount = 0;
+            $isAnswerCorrect = true;
+            foreach ($answers[$question->getId()] as $answer)
+            {
+                $answers[$question->getId()] = intval($answer);
+                $isAnswerCorrect = $isAnswerCorrect && in_array($answer, $correctAnswers);
+                if (in_array($answer, $correctAnswers)) {
+                    $userAnswerTrueCount++;
+                }
+            }
+            $userAnswerTrueCount = (!$isAnswerCorrect) ? 0 : $userAnswerTrueCount;
 
+            $points = $question->getPoints();
+            if ($userAnswerTrueCount != $correctCount) {
+                $points = $question->getPoints() * ($userAnswerTrueCount / $correctCount);
+            }
+            $userPoints += $points;
+
+            $userResults[$question->getId()]['points'] = $points;
+            $userResults[$question->getId()]['result'] = $isAnswerCorrect;
+            $userResults[$question->getId()]['userAnswers'] = $answers[$question->getId()];
+            $userResults[$question->getId()]['trueAnswers'] = $correctAnswers;
         }
-        return $this->json($correctAnswers);
+        $questions['userResult'] = $userResults;
+        $questions['userResult']['userPoints'] = $userPoints;
+
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($questions, 'json');
+        return $this->json($jsonResponse);
     }
 }

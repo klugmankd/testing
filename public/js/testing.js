@@ -41,7 +41,7 @@ var searchFields = function () {
     for (var index = 0; index < fields.length; index++) {
         var field = fields[index];
         if (field.checked) {
-            answers.push(field.value);
+            answers.push(parseInt(field.value));
         }
     }
     return answers
@@ -67,22 +67,26 @@ var searchFields = function () {
             questionBlock.appendChild(initAnswers(data.questions[index]));
             var userAnswers = [];
 
+            var question = {};
             $(document).on("click", ".reply", function () {
                 var answers = searchFields();
                 var questionId = data.questions[index].id;
-                userAnswers.push({question: questionId, answers: answers});
+                // userAnswers.push(question);
+                question[questionId] = answers;
+                console.log(question);
                 index++;
                 if (data.questions[index] !== undefined) {
                     questionBlock.innerHTML = '';
                     questionBlock.appendChild(initQuestion(data.questions, index));
                     questionBlock.appendChild(initAnswers(data.questions[index]));
                 } else {
-                    console.log(userAnswers);
+                    console.log(question);
                     $.ajax({
                         type: "POST",
                         url: "http://127.0.0.1:8000/tests/check",
-                        data: {test: testId, answers: userAnswers},
+                        data: {test: testId, answers: question},
                         success: function (data) {
+                            data = (typeof data === 'string') ? JSON.parse(data) : data;
                             console.log(data);
                         }
                     });
