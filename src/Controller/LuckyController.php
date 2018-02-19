@@ -91,4 +91,12 @@ class LuckyController extends Controller
             'test.html.twig'
         );
     }
+
+    /**
+     * @Route("/privacy-policy")
+     */
+    public function privacyPolicy()
+    {
+        return new Response("privacy-policy");
+    }
 }

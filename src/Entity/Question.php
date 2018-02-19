@@ -22,7 +22,7 @@ class Question
     private $text;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="float", options={"default":"0.0"})
      */
     private $points;
 
