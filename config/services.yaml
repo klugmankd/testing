@@ -26,10 +26,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    google_authenticator:
-        class: App\Security\GoogleAuthenticator
-        autowire: true
+#    google_authenticator:
+#        class: App\Security\GoogleAuthenticator
+#        autowire: true
+#
+#    user_provider:
+#        class: App\Security\UserProvider
+#        autowire: true
 
-    user_provider:
-        class: App\Security\UserProvider
+    auth_service:
+        class: App\Service\AuthManager
         autowire: true

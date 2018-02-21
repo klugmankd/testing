@@ -13,16 +13,15 @@ class DifficultyRepository extends ServiceEntityRepository
         parent::__construct($registry, Difficulty::class);
     }
 
-    /*
-    public function findBySomething($value)
+
+    public function findAccessible($id)
     {
         return $this->createQueryBuilder('d')
-            ->where('d.something = :value')->setParameter('value', $value)
+            ->where('d.id <= :id')
+            ->setParameter('id', $id)
             ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
+
 }

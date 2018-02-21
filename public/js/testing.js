@@ -48,9 +48,12 @@ var searchFields = function () {
 };
 
 (function () {
+    var testingBlock = $(".testing-block");
+    var difficulty = testingBlock.data('difficulty');
+    var direction = testingBlock.data('direction');
     $.ajax({
         type: "GET",
-        url: "http://127.0.0.1:8000/tests/random/9/2",
+        url: "http://127.0.0.1:8000/tests/random/" + direction+ "/" + difficulty,
         success: function (data) {
             data = (typeof data === 'string') ? JSON.parse(data) : data;
             var testId = data.id;
@@ -80,13 +83,14 @@ var searchFields = function () {
                     questionBlock.appendChild(initQuestion(data.questions, index));
                     questionBlock.appendChild(initAnswers(data.questions[index]));
                 } else {
-                    console.log(question);
+                    $(".reply").remove();
                     $.ajax({
                         type: "POST",
                         url: "http://127.0.0.1:8000/tests/check",
                         data: {test: testId, answers: question},
                         success: function (data) {
                             data = (typeof data === 'string') ? JSON.parse(data) : data;
+                            $(".testing-block").append("<h4>Your score in the direction: " + data.userResult.result + "</h4>");
                             console.log(data);
                         }
                     });

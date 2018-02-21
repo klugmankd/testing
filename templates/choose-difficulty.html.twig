@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="difficulties-block">
+        <ul class="list">
+            {% for difficulty in difficulties %}
+                <li class="item">
+                    <a href="{{
+                    path('start_test', {'difficulty': difficulty.id, 'direction': direction})
+                    }}">
+                        {{ difficulty.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}
+

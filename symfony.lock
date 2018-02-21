@@ -113,6 +113,9 @@
     "ocramius/proxy-manager": {
         "version": "2.2.0"
     },
+    "overtrue/socialite": {
+        "version": "2.0.2"
+    },
     "paragonie/random_compat": {
         "version": "v2.0.11"
     },

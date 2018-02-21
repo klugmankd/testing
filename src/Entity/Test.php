@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table(name="`test`")
  * @ORM\Entity(repositoryClass="App\Repository\TestRepository")
  */
 class Test
@@ -35,9 +36,15 @@ class Test
     private $barrier;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $occurrence;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Question", mappedBy="test")
      */
     private $questions;
+
 
     public function __construct()
     {
@@ -114,5 +121,21 @@ class Test
     public function setBarrier($barrier): void
     {
         $this->barrier = $barrier;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOccurrence()
+    {
+        return $this->occurrence;
+    }
+
+    /**
+     * @param mixed $occurrence
+     */
+    public function setOccurrence($occurrence): void
+    {
+        $this->occurrence = $occurrence;
     }
 }

@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-    </head>
-    <body>
-        <div class="menu">
-            <a href="/direction">direction</a>
-            <a href="/difficulty">difficulty</a>
-            <a href="/test">test</a>
-            <a href="/question">question</a>
-            <a href="/answer">answer</a>
-        </div>
-        {% block body %}
-        {% endblock %}
-        {% block javascripts %}
-        {% endblock %}
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+{% if (is_granted("ROLE_ADMIN")) %}
+    <div class="menu">
+        <a href="/admin/direction">direction</a>
+        <a href="/admin/difficulty">difficulty</a>
+        <a href="/admin/test">test</a>
+        <a href="/admin/question">question</a>
+        <a href="/admin/answer">answer</a>
+    </div>
+{% endif %}
+
+{% block body %}
+{% endblock %}
+{% block javascripts %}
+{% endblock %}
+</body>
 </html>

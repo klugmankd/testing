@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Test;
+use App\Entity\UserPoints;
+use App\Entity\UserResults;
+use App\Service\CheckingManager;
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\SerializerBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -13,6 +16,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TestController extends Controller
 {
+    private $checkingManager;
+
+    public function __construct(CheckingManager $checkingManager)
+    {
+        $this->checkingManager = $checkingManager;
+    }
+
     /**
      * @Route("/tests", name="tests_create")
      * @Method({"POST"})
@@ -32,6 +42,7 @@ class TestController extends Controller
         $test->setDifficulty($difficulty);
         $test->setDirection($direction);
         $test->setBarrier($request->get('barrier'));
+        $test->setOccurrence($request->get('occurrence'));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($test);
         $entityManager->flush();
@@ -99,6 +110,7 @@ class TestController extends Controller
         $test->setDifficulty($difficulty);
         $test->setDirection($direction);
         $test->setBarrier($request->get('barrier'));
+        $test->setOccurrence($request->get('occurrence'));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($test);
         $entityManager->flush();
@@ -148,7 +160,7 @@ class TestController extends Controller
         $repository = $this->getDoctrine()
             ->getRepository('App:Test');
 
-        $ids = $repository->findTestIds($direction, $difficulty);
+        $ids = $repository->findIds($direction, $difficulty);
 
         $arIds = array();
         foreach ($ids as $id)
@@ -173,52 +185,32 @@ class TestController extends Controller
      */
     public function checkAction(Request $request)
     {
-        $test = $this->getDoctrine()
-            ->getRepository('App:Test')
-            ->find($request->get('test'));
-        $questions = $this->getDoctrine()
-            ->getRepository('App:Question')
-            ->findCorrectAnswers($test);
-        $answers = $request->get('answers');
-        $userResults = array();
+        $results = $this->checkingManager
+            ->check($request);
+        $parameters = $this->checkingManager
+            ->getParameters($request);
+        $presentResult = $this->getDoctrine()
+            ->getRepository('App:UserResults')
+            ->findOneBy([
+                'user' => $parameters['user'],
+                'test' => $parameters['test']
+            ]);
+        $userResult = (!is_null($presentResult)) ?
+            $presentResult :
+            new UserResults();
 
-        // User::points
-        $userPoints = 0;
-        foreach ($questions as $key => $question) {
-            $correctAnswers = array();
-            foreach ($question->getAnswers() as $answer) {
-                $correctAnswers[] = $answer->getId();
-            }
-            $correctCount = count($correctAnswers);
-
-            $userAnswerTrueCount = 0;
-            $isAnswerCorrect = true;
-            foreach ($answers[$question->getId()] as $answer)
-            {
-                $answers[$question->getId()] = intval($answer);
-                $isAnswerCorrect = $isAnswerCorrect && in_array($answer, $correctAnswers);
-                if (in_array($answer, $correctAnswers)) {
-                    $userAnswerTrueCount++;
-                }
-            }
-            $userAnswerTrueCount = (!$isAnswerCorrect) ? 0 : $userAnswerTrueCount;
-
-            $points = $question->getPoints();
-            if ($userAnswerTrueCount != $correctCount) {
-                $points = $question->getPoints() * ($userAnswerTrueCount / $correctCount);
-            }
-            $userPoints += $points;
-
-            $userResults[$question->getId()]['points'] = $points;
-            $userResults[$question->getId()]['result'] = $isAnswerCorrect;
-            $userResults[$question->getId()]['userAnswers'] = $answers[$question->getId()];
-            $userResults[$question->getId()]['trueAnswers'] = $correctAnswers;
-        }
-        $questions['userResult'] = $userResults;
-        $questions['userResult']['userPoints'] = $userPoints;
-
+        $userResult->setUser($parameters['user']);
+        $userResult->setTest($parameters['test']);
+        $hasPassed = $parameters['test']->
+            getBarrier() <= $results['userResult']['result'];
+        $userResult->setHasPassed($hasPassed);
+        $entityManager = $this->getDoctrine()
+            ->getManager();
+        $entityManager->persist($userResult);
+        $entityManager->flush();
         $serializer = SerializerBuilder::create()->build();
-        $jsonResponse = $serializer->serialize($questions, 'json');
+        $jsonResponse = $serializer->serialize($results, 'json');
         return $this->json($jsonResponse);
     }
+
 }

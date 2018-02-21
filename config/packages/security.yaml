@@ -4,6 +4,9 @@ security:
         my_provider:
             entity: { class: App:User, property: username }
 
+    role_hierarchy:
+          ROLE_ADMIN:       ROLE_USER
+          ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN]
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
@@ -12,10 +15,17 @@ security:
 
         main:
             anonymous: ~
-            logout:
-                path: /logout
-            logout_on_user_change: true
+            pattern: ^/
 
-            guard:
-                authenticators:
-                    - App\Security\GoogleAuthenticator
+        secured_area:
+            pattern:    ^/
+            anonymous: ~
+            form_login:
+                login_path:  /connect/google
+                check_path:  /connect/google/check
+                default_target_path: home
+
+    access_control:
+            - { path: ^/admin.*, roles: ROLE_ADMIN }
+            - { path: ^/connect.*|/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/.*, roles: ROLE_USER }

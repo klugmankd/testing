@@ -14,7 +14,7 @@ class TestRepository extends ServiceEntityRepository
     }
 
 
-    public function findTestIds($direction, $difficulty)
+    public function findIds($direction, $difficulty)
     {
         return $this->createQueryBuilder('t')
             ->select('t.id')
@@ -23,6 +23,19 @@ class TestRepository extends ServiceEntityRepository
             ->setParameter('direction', $direction)
             ->setParameter('difficulty', $difficulty)
             ->orderBy('t.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAccessible($direction, $userPoints)
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.direction = :direction')
+            ->andWhere('t.occurrence <= :points')
+            ->setParameter('direction', $direction)
+            ->setParameter('points', $userPoints)
+            ->orderBy('t.difficulty', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getResult();
     }

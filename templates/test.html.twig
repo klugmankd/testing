@@ -1,7 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="testing-block">
+    <div class="testing-block"
+         data-difficulty="{{ difficulty }}"
+         data-direction="{{ direction }}">
         <h3>Test</h3>
         <hr>
         <div class="question-block"></div>

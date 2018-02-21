@@ -27,6 +27,7 @@ class QuestionController extends Controller
         $question = new Question();
         $question->setText($request->get('text'));
         $question->setTest($test);
+        $question->setPoints(intval($request->get('points')));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($question);
         $entityManager->flush();

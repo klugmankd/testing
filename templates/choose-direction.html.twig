@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="directions-block">
+        <ul class="list">
+            {% for direction in directions %}
+                <li class="item">
+                    <a href="{{ path('choose_difficulty', {'direction': direction.id}) }}">{{ direction.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}
+

@@ -4,34 +4,38 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Security\GoogleAuthenticator;
+use App\Service\AuthManager;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class GoogleController extends Controller
 {
 
-    private $googleAuthenticator;
+    private $authManager;
 
-    public function __construct(GoogleAuthenticator $googleAuthenticator)
+    public function __construct(AuthManager $authManager)
     {
-        $this->googleAuthenticator = $googleAuthenticator;
+        $this->authManager = $authManager;
     }
 
     /**
      * Link to this controller to start the "connect" process
      *
      * @Route("/connect/google", name="connect_google")
-     * @param ClientRegistry $clientRegistry
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function connectAction(ClientRegistry $clientRegistry)
+    public function connectAction()
     {
-        return $clientRegistry
-            ->getClient('google')
+        return $this->authManager
+            ->getDriver()
             ->redirect();
     }
 
@@ -44,13 +48,35 @@ class GoogleController extends Controller
      */
     public function connectCheckAction(Request $request)
     {
+        $googleUser = $this->authManager
+            ->getDriver()
+            ->user();
 
-        $client = $this->get('oauth2.registry')
-            ->getClient('google');
+        $user = $this->getDoctrine()
+            ->getRepository('App:User')
+            ->findOneBy(['googleId' => $googleUser->getId()]);
 
-        $user = $client->fetchUser();
 
-        return new Response($user->getId());
+        if (is_null($user)) {
+            $user = new User();
+            $user->setEmail(strval($googleUser->getEmail()));
+            $user->setGoogleId(strval($googleUser->getId()));
+            $user->setAdmin(false);
+            $entityManager = $this->getDoctrine()
+                ->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+        }
+
+        $request->getSession()->set("user", $user);
+        $role = ($user->isAdmin()) ? ['ROLE_ADMIN'] : ['ROLE_USER'];
+        $token = new UsernamePasswordToken($user->getUsername(), null, 'main', $role);
+        $this->container->get('security.token_storage')->setToken($token);
+
+        $event = new InteractiveLoginEvent($request, $token);
+
+        $this->container->get('event_dispatcher')->dispatch('security.interactive_login', $event);
+        return $this->redirectToRoute('app_home');
     }
 
 }
