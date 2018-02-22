@@ -25,4 +25,19 @@ class UserResultsRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findByUser($user, $direction, $hasPassed)
+    {
+        return $this->createQueryBuilder('ur')
+            ->leftJoin('ur.test', 'test')
+            ->where('ur.user = :user')
+            ->andWhere('test.direction = :direction')
+            ->andWhere('ur.hasPassed = :hasPassed')
+            ->setParameter('user', $user)
+            ->setParameter('direction', $direction)
+            ->setParameter('hasPassed', $hasPassed)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

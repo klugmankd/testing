@@ -45,7 +45,6 @@ class Test
      */
     private $questions;
 
-
     public function __construct()
     {
         $this->questions = new ArrayCollection();

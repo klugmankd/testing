@@ -49,20 +49,90 @@ class LuckyController extends Controller
         $direction = $this->getDoctrine()
             ->getRepository('App:Direction')
             ->find($direction);
+        $difficulties = $this->getDoctrine()
+            ->getRepository('App:Difficulty')
+            ->findAll();
+        $userResultsPassed = $this->getDoctrine()
+            ->getRepository('App:UserResults')
+            ->findByUser($user, $direction, true);
+        $userResultsNotPassed = $this->getDoctrine()
+            ->getRepository('App:UserResults')
+            ->findByUser($user, $direction, false);
         $userPoints = $this->getDoctrine()
             ->getRepository('App:UserPoints')
             ->findOneBy([
-                'user' => $user,
-                'direction' => $direction
+                'direction' => $direction,
+                'user' => $user
             ]);
-        $points = (!$userPoints) ? 0 : $userPoints->getPoints();
-        $accessibleDifficulty = $this->getDoctrine()
+        $tests = $this->getDoctrine()
             ->getRepository('App:Test')
-            ->findAccessible($direction, $points)[0]
-            ->getDifficulty();
-        $difficulties = $this->getDoctrine()
-            ->getRepository('App:Difficulty')
-            ->findAccessible($accessibleDifficulty);
+            ->findBy(['direction' => $direction]);
+
+        $testsByDifficulty = array();
+        foreach ($difficulties as $id => $difficulty) {
+            $testsByDifficulty[$difficulty->getId()] = array();
+            $testHasQuestions = false;
+            foreach ($tests as $key => $test) {
+                if ($test->getDifficulty() == $difficulty) {
+                    $testHasQuestions = $testHasQuestions || count($test->getQuestions()) > 0;
+                    $testsByDifficulty[$difficulty->getId()][] = $test;
+                    unset($tests[$key]);
+                }
+            }
+            $userAccess = true;
+            foreach ($testsByDifficulty[$difficulty->getId()] as $test) {
+                $points = (!$userPoints) ? 0 : $userPoints->getPoints();
+                $userAccess = $userAccess && ($points >= $test->getOccurrence());
+            }
+            $testsByDifficulty[$difficulty->getId()]['accessible'] = $userAccess;
+            if (!$testHasQuestions) {
+                unset($difficulties[$id]);
+            }
+        }
+
+
+        $difficultiesPassed = array();
+        if (count($userResultsPassed) > 0) {
+            foreach ($userResultsPassed as $result) {
+                $difficultiesPassed[] = $result->getTest()
+                    ->getDifficulty();
+            }
+        }
+
+        $difficultiesNotPassed = array();
+        if (count($userResultsNotPassed) > 0) {
+            foreach ($userResultsNotPassed as $result) {
+                $difficultiesNotPassed[] = $result->getTest()
+                    ->getDifficulty();
+            }
+        }
+
+        foreach ($difficulties as $key => $difficulty) {
+            $difficulties[0]->setAccessible(true);
+            if ($key > 0) {
+                $userAccessByPoints = $testsByDifficulty[$difficulty->getId()]['accessible'];
+                $accessible = $difficulties[$key - 1]->hasPassed() && $userAccessByPoints;
+                $difficulties[$key]->setAccessible($accessible);
+            }
+            if (count($difficultiesPassed) > 0) {
+                $difficulties[$key]->setHasPassed(
+                    in_array($difficulty, $difficultiesPassed)
+                );
+                $difficulties[$key]->setDidNotPass(false);
+            } else {
+            if (count($difficultiesNotPassed) > 0) {
+                $difficulties[$key]->setHasPassed(
+                    !in_array($difficulty, $difficultiesNotPassed)
+                );
+                $difficulties[$key]->setDidNotPass(false);
+            }
+            }
+            if (!in_array($difficulty, $difficultiesPassed) &&
+                !in_array($difficulty, $difficultiesNotPassed)) {
+                $difficulties[$key]->setDidNotPass(true);
+                $difficulties[$key]->setHasPassed(false);
+            }
+        }
         return $this->render("choose-difficulty.html.twig", [
             "difficulties" => $difficulties,
             "direction" => $direction->getId()

@@ -17,13 +17,13 @@ class UserResults
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="results")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Test")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id")
      */
     private $test;

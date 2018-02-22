@@ -201,8 +201,8 @@ class TestController extends Controller
 
         $userResult->setUser($parameters['user']);
         $userResult->setTest($parameters['test']);
-        $hasPassed = $parameters['test']->
-            getBarrier() <= $results['userResult']['result'];
+        $hasPassed = $parameters['test']
+                ->getBarrier() <= $results['userResult']['result'];
         $userResult->setHasPassed($hasPassed);
         $entityManager = $this->getDoctrine()
             ->getManager();
@@ -211,6 +211,16 @@ class TestController extends Controller
         $serializer = SerializerBuilder::create()->build();
         $jsonResponse = $serializer->serialize($results, 'json');
         return $this->json($jsonResponse);
+    }
+
+    /**
+     * @Route("save-test", name="test_save_position")
+     * @param Request $request
+     */
+    public function savePositionAction(Request $request)
+    {
+        $test = $request->get("test");
+
     }
 
 }

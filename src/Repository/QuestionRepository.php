@@ -16,7 +16,7 @@ class QuestionRepository extends ServiceEntityRepository
     public function findCorrectAnswers($test)
     {
         return $this->createQueryBuilder('q')
-            ->select(array('q', 'a'))
+            ->select(['q', 'a'])
             ->leftJoin('q.answers', 'a')
             ->where('q.test = :test')
             ->andWhere('a.isCorrect = :isCorrect')
