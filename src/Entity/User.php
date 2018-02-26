@@ -35,20 +35,10 @@ class User implements UserInterface
     private $admin;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserPoints", mappedBy="user")
-     */
-    private $points;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="user")
      * @ORM\JoinColumn(name="last_test_id", referencedColumnName="id")
      */
     private $lastTest;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserQuestions", mappedBy="user")
-     */
-    private $questions;
 
     /**
      * @return mixed
@@ -189,27 +179,4 @@ class User implements UserInterface
         $this->lastTest = $lastTest;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPoints()
-    {
-        return $this->points;
-    }
-
-    /**
-     * @param mixed $points
-     */
-    public function setPoints($points): void
-    {
-        $this->points = $points;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getQuestions()
-    {
-        return $this->questions;
-    }
 }

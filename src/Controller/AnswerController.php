@@ -180,7 +180,6 @@ class AnswerController extends Controller
         $jsonResponse = $serializer->serialize($userQuestion, 'json');
         return $this->json(
             $jsonResponse
-//            $userAnswers
         );
     }
 

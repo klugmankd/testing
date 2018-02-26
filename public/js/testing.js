@@ -81,7 +81,7 @@ var searchFields = function () {
             var question = {}, points = 0, testData = data;
             $(document).on("click", ".reply", function () {
                 var answers = searchFields();
-                var questionId = data[index].question.id;
+                var questionId = (data[index] !== undefined) ? data[index].question.id : "none";
 
                 // for pause functional
                 testPause['questions'].push(data[index].question);
@@ -102,15 +102,22 @@ var searchFields = function () {
                     success: function (data) {
                         data = (typeof data === 'string') ? JSON.parse(data) : data;
                         console.log(data);
-                        // points += data.points;
                         index++;
-                        if (testData[index].question !== undefined) {
+                        if (testData[index] !== undefined) {
                             questionBlock.innerHTML = '';
                             questionBlock.appendChild(initQuestion(testData, index));
                             questionBlock.appendChild(initAnswers(testData[index].question));
-                        } /*else {
-                            console.log(points);
-                        }*/
+                        } else {
+                            $.ajax({
+                                type: "POST",
+                                url: "http://127.0.0.1:8000/test/check",
+                                data: {test: testId},
+                                success: function (data) {
+                                    data = (typeof data === 'string') ? JSON.parse(data) : data;
+                                    console.log(data)
+                                }
+                            })
+                        }
                     }
                 });
 
@@ -125,16 +132,16 @@ var searchFields = function () {
                 // } else {
                 //     $(".reply").remove();
                 //     console.log(question)
-                    // $.ajax({
-                    //     type: "POST",
-                    //     url: "http://127.0.0.1:8000/tests/check",
-                    //     data: {test: testId, answers: question},
-                    //     success: function (data) {
-                    //         data = (typeof data === 'string') ? JSON.parse(data) : data;
-                    //         $(".testing-block").append("<h4>Your score in the direction: " + data.userResult.result + "</h4>");
-                    //         console.log(data);
-                    //     }
-                    // });
+                // $.ajax({
+                //     type: "POST",
+                //     url: "http://127.0.0.1:8000/tests/check",
+                //     data: {test: testId, answers: question},
+                //     success: function (data) {
+                //         data = (typeof data === 'string') ? JSON.parse(data) : data;
+                //         $(".testing-block").append("<h4>Your score in the direction: " + data.userResult.result + "</h4>");
+                //         console.log(data);
+                //     }
+                // });
                 // }
             });
 

@@ -18,7 +18,7 @@ class UserPoints
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="points")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;

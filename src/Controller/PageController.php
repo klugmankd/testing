@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Test;
+use App\Entity\UserPoints;
 use App\Entity\UserQuestions;
 use JMS\Serializer\SerializerBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -71,7 +72,7 @@ class PageController extends Controller
 
         if ($request->isXmlHttpRequest()) {
 
-            $questionsCount = 20;
+            $questionsCount = 5;
 
             $entityManager = $this->getDoctrine()
                 ->getManager();
@@ -84,7 +85,7 @@ class PageController extends Controller
                 ->find($userId);
             $userQuestions = array();
             $test = 0;
-            if (!empty($user->getLastTest())) {
+            if (!is_null($user->getLastTest())) {
                 $userQuestionsPassed = $this->getDoctrine()
                     ->getRepository('App:UserQuestions')
                     ->findBy([
@@ -122,9 +123,7 @@ class PageController extends Controller
 
                 for ($index = 0; $index < $questionsCount; $index++) {
                     $randIndex = rand(0, $questionsMaxIndex);
-                    while (in_array($questions[$randIndex], $userQuestions)) {
-                        $randIndex = rand(0, $questionsMaxIndex);
-                    }
+                    if (in_array($questions[$randIndex], $userQuestions)) continue;
                     $userQuestion = new UserQuestions();
                     $userQuestion->setUser($user);
                     $userQuestion->setTest($test);
@@ -132,6 +131,7 @@ class PageController extends Controller
                     $userQuestion->setAnswers('');
                     $userQuestion->setWasPassed(false);
                     $entityManager->persist($userQuestion);
+                    $userQuestions[] = $userQuestion;
                 }
                 $entityManager->flush();
             }
@@ -159,9 +159,25 @@ class PageController extends Controller
         $userId = $request->getSession()
             ->get('user')
             ->getId();
+//
+//
         $user = $this->getDoctrine()
             ->getRepository('App:User')
             ->find($userId);
+//        $direction = $this->getDoctrine()
+//            ->getRepository('App:Direction')
+//            ->find(1);
+//        $userPoints = new UserPoints();
+//        $userPoints->setUser($user);
+//        $userPoints->setDirection($direction);
+//        $userPoints->setPoints(0);
+//        $entityManager = $this->getDoctrine()
+//            ->getManager();
+//        $entityManager->persist($userPoints);
+//        $entityManager->flush();
+//
+//        $serializer = SerializerBuilder::create()->build();
+//        $jsonResponse = $serializer->serialize($userPoints, 'json');
         return $this->json($user);
     }
 }

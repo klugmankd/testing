@@ -33,6 +33,11 @@ class Test
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserQuestions", mappedBy="question")
+     */
+    private $questions;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
