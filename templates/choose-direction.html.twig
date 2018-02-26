@@ -5,7 +5,7 @@
         <ul class="list">
             {% for direction in directions %}
                 <li class="item">
-                    <a href="{{ path('choose_difficulty', {'direction': direction.id}) }}">{{ direction.name }}</a>
+                    <a href="{{ path('app_difficulties', {'name': direction.name}) }}">{{ direction.name }}</a>
                 </li>
             {% endfor %}
         </ul>

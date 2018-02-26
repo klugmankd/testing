@@ -20,13 +20,17 @@ class QuestionController extends Controller
      */
     public function createAction(Request $request)
     {
-        $test = $this->getDoctrine()
-            ->getRepository('App:Test')
-            ->find($request->get('test'));
+        $direction = $this->getDoctrine()
+            ->getRepository('App:Direction')
+            ->find($request->get('direction'));
+        $difficulty = $this->getDoctrine()
+            ->getRepository('App:Difficulty')
+            ->find($request->get('difficulty'));
 
         $question = new Question();
         $question->setText($request->get('text'));
-        $question->setTest($test);
+        $question->setDirection($direction);
+        $question->setDifficulty($difficulty);
         $question->setPoints(intval($request->get('points')));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($question);

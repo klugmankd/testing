@@ -138,35 +138,50 @@ class AnswerController extends Controller
      */
     public function checkAnswerAction(Request $request)
     {
+        $entityManager = $this->getDoctrine()
+            ->getManager();
+        $userId = $request->getSession()
+            ->get('user')
+            ->getId();
+
+        $user = $this->getDoctrine()
+            ->getRepository('App:User')
+            ->find($userId);
+
         $userAnswers = $request->get('answers');
-        $isAnswerCorrect = true;
-        $correctAnswers['answers'] = $this->getDoctrine()
-            ->getRepository('App:Answer')
-            ->findCorrectByQuestion($request->get('question'));
-        $correctAnswers['count'] = count($correctAnswers['answers']);
-        $correctAnswersIds = array();
-        foreach ($correctAnswers['answers'] as $correctAnswer) {
-            $correctAnswersIds[] = $correctAnswer['id'];
-        }
+
+        $questionId = $request->get('question');
 
         $question = $this->getDoctrine()
             ->getRepository('App:Question')
-            ->find($request->get('question'));
-        $userAnswerTrueCount = 0;
-        foreach ($userAnswers as $userAnswer) {
-            $isAnswerCorrect = $isAnswerCorrect && in_array($userAnswer, $correctAnswersIds);
-            if (in_array($userAnswer, $correctAnswersIds)) {
-                $userAnswerTrueCount++;
-            }
-        }
-        $userAnswerTrueCount = (!$isAnswerCorrect) ? 0 : $userAnswerTrueCount;
+            ->find($questionId);
 
-        $points = $question->getPoints();
-        if ($userAnswerTrueCount != $correctAnswers['count']) {
-            $points = $question->getPoints() * ($userAnswerTrueCount / $correctAnswers['count']);
-        }
+        $testId = $request->get('test');
 
-        return $this->json(array("result" => $isAnswerCorrect, "points" => $points));
+        $test = $this->getDoctrine()
+            ->getRepository('App:Test')
+            ->find($testId);
+
+        $userQuestion = $this->getDoctrine()
+            ->getRepository('App:UserQuestions')
+            ->findOneBy([
+                'user' => $user,
+                'question' => $question,
+                'test' => $test
+            ]);
+
+        $userAnswers = json_encode($userAnswers);
+        $userQuestion->setAnswers($userAnswers);
+        $userQuestion->setWasPassed(true);
+        $entityManager->persist($userQuestion);
+        $entityManager->flush();
+
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($userQuestion, 'json');
+        return $this->json(
+            $jsonResponse
+//            $userAnswers
+        );
     }
 
 }

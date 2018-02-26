@@ -27,10 +27,10 @@ var searchFields = function (object) {
 
 $(document).on('click', '.createForm .form-group button', function () {
     /*var second = 0;
-    var data = {question: 31, text: "true", isCorrect: true};
+    var data = {question: 1, text: "true", isCorrect: true};
     var interval = setInterval(function () {
         second++;
-        if (second === 59) {
+        if (second === 41) {
             clearInterval(interval);
         }
         console.log(second);

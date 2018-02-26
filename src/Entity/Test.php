@@ -19,35 +19,23 @@ class Test
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Difficulty")
-     * @ORM\JoinColumn(name="difficulty_id", referencedColumnName="id")
-     */
-    private $difficulty;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Direction")
-     * @ORM\JoinColumn(name="direction_id", referencedColumnName="id")
-     */
-    private $direction;
-
-    /**
      * @ORM\Column(type="integer")
      */
-    private $barrier;
+    private $time;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="time", nullable=true)
      */
-    private $occurrence;
+    private $timeout;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Question", mappedBy="test")
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="lastTest")
      */
-    private $questions;
+    private $user;
 
     public function __construct()
     {
-        $this->questions = new ArrayCollection();
+        $this->user = new ArrayCollection();
     }
 
     /**
@@ -61,33 +49,41 @@ class Test
     /**
      * @return mixed
      */
-    public function getDifficulty()
+    public function getTime()
     {
-        return $this->difficulty;
+        return $this->time;
     }
 
     /**
-     * @param mixed $difficulty
+     * @param mixed $time
      */
-    public function setDifficulty($difficulty): void
+    public function setTime($time): void
     {
-        $this->difficulty = $difficulty;
+        $this->time = $time;
     }
 
     /**
      * @return mixed
      */
-    public function getDirection()
+    public function getTimeout()
     {
-        return $this->direction;
+        return $this->timeout;
     }
 
     /**
-     * @param mixed $direction
+     * @return mixed
      */
-    public function setDirection($direction): void
+    public function getUser()
     {
-        $this->direction = $direction;
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function addUser($user): void
+    {
+        $this->user[] = $user;
     }
 
     /**
@@ -98,43 +94,5 @@ class Test
         return $this->questions;
     }
 
-    /**
-     * @param mixed $questions
-     */
-    public function setQuestions($questions): void
-    {
-        $this->questions = $questions;
-    }
 
-    /**
-     * @return mixed
-     */
-    public function getBarrier()
-    {
-        return $this->barrier;
-    }
-
-    /**
-     * @param mixed $barrier
-     */
-    public function setBarrier($barrier): void
-    {
-        $this->barrier = $barrier;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOccurrence()
-    {
-        return $this->occurrence;
-    }
-
-    /**
-     * @param mixed $occurrence
-     */
-    public function setOccurrence($occurrence): void
-    {
-        $this->occurrence = $occurrence;
-    }
 }

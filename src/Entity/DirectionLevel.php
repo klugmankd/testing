@@ -5,9 +5,9 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\QuestionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\DirectionLevelRepository")
  */
-class Question
+class DirectionLevel
 {
     /**
      * @ORM\Id
@@ -15,11 +15,6 @@ class Question
      * @ORM\Column(type="integer")
      */
     private $id;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $text;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Direction")
@@ -37,11 +32,6 @@ class Question
      * @ORM\Column(type="integer")
      */
     private $points;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question")
-     */
-    private $answers;
 
     /**
      * @return mixed
@@ -97,29 +87,5 @@ class Question
     public function setPoints($points): void
     {
         $this->points = $points;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAnswers()
-    {
-        return $this->answers;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getText()
-    {
-        return $this->text;
-    }
-
-    /**
-     * @param mixed $text
-     */
-    public function setText($text): void
-    {
-        $this->text = $text;
     }
 }

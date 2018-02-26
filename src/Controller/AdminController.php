@@ -68,14 +68,19 @@ class AdminController extends Controller
      */
     public function question()
     {
-        $tests = $this->getDoctrine()
-            ->getRepository('App:Test')
+        $directions = $this->getDoctrine()
+            ->getRepository('App:Direction')
+            ->findAll();
+
+        $difficulties = $this->getDoctrine()
+            ->getRepository('App:Difficulty')
             ->findAll();
 
         return $this->render(
             'questions.html.twig',
             array(
-                "tests" => $tests
+                "directions" => $directions,
+                "difficulties" => $difficulties
             )
         );
     }

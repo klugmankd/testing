@@ -40,9 +40,16 @@ class User implements UserInterface
     private $points;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserResults", mappedBy="user")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="user")
+     * @ORM\JoinColumn(name="last_test_id", referencedColumnName="id")
      */
-    private $results;
+    private $lastTest;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserQuestions", mappedBy="user")
+     */
+    private $questions;
+
     /**
      * @return mixed
      */
@@ -84,14 +91,6 @@ class User implements UserInterface
     }
 
     /**
-     * @return mixed
-     */
-    public function getPoints()
-    {
-        return $this->points;
-    }
-
-    /**
      * @return bool
      */
     public function isAdmin(): bool
@@ -105,14 +104,6 @@ class User implements UserInterface
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getResults()
-    {
-        return $this->results;
     }
 
     /**
@@ -180,5 +171,45 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastTest()
+    {
+        return $this->lastTest;
+    }
+
+    /**
+     * @param mixed $lastTest
+     */
+    public function setLastTest($lastTest): void
+    {
+        $this->lastTest = $lastTest;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPoints()
+    {
+        return $this->points;
+    }
+
+    /**
+     * @param mixed $points
+     */
+    public function setPoints($points): void
+    {
+        $this->points = $points;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getQuestions()
+    {
+        return $this->questions;
     }
 }

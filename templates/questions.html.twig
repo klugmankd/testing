@@ -5,10 +5,18 @@
         <div class="createForm" data-action="create">
             <h3>Creating question</h3>
             <div class="form-group">
-                <select name="test" class="input">
-                    <option disabled selected>test</option>
-                    {% for test in tests %}
-                        <option value="{{ test.id }}">{{ test.id }}</option>
+                <select name="direction" class="input">
+                    <option disabled selected>Direction</option>
+                    {% for direction in directions %}
+                        <option value="{{ direction.id }}">{{ direction.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="difficulty" class="input">
+                    <option disabled selected>Difficulty</option>
+                    {% for difficulty in difficulties %}
+                        <option value="{{ difficulty.id }}">{{ difficulty.name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -44,14 +52,7 @@
             <div class="form-group">
                 <input type="text" class="input" name="id" placeholder="id">
             </div>
-            <div class="form-group">
-                <select name="test" class="input">
-                    <option disabled selected>test</option>
-                    {% for test in tests %}
-                        <option value="{{ test.id }}">{{ test.id }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+
             <div class="form-group">
                 <input type="text" class="input" name="text" placeholder="text">
             </div>

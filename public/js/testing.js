@@ -5,7 +5,7 @@ var initQuestion = function (questions, index) {
     titleTemplate.innerText = 'Question #' + (index + 1);
     mainTemplate.appendChild(titleTemplate);
     var bodyTemplate = document.createElement('p');
-    bodyTemplate.innerText = questions[index].text;
+    bodyTemplate.innerText = questions[index].question.text;
     mainTemplate.appendChild(bodyTemplate);
 
     return mainTemplate;
@@ -51,51 +51,104 @@ var searchFields = function () {
     var testingBlock = $(".testing-block");
     var difficulty = testingBlock.data('difficulty');
     var direction = testingBlock.data('direction');
+    var testPause = {};
     $.ajax({
         type: "GET",
-        url: "http://127.0.0.1:8000/tests/random/" + direction+ "/" + difficulty,
+        url: "http://127.0.0.1:8000/directions/" + direction+ "/" + difficulty,
         success: function (data) {
             data = (typeof data === 'string') ? JSON.parse(data) : data;
+            console.log(data);
             var testId = data.id;
-            for (var index = 0; index < data.questions.length; index++) {
-                var question = data.questions[index];
+            for (var index = 0; index < data.length; index++) {
+                var question = data[index].question;
                 for (var inIndex = 0; inIndex < question.answers.length; inIndex++) {
                     var answer = question.answers[inIndex];
                     delete answer['is_correct'];
                 }
             }
+            console.log(data);
+
             var questionBlock = document.querySelector(".question-block");
             index = 0;
-            questionBlock.appendChild(initQuestion(data.questions, index));
-            questionBlock.appendChild(initAnswers(data.questions[index]));
+            questionBlock.appendChild(initQuestion(data, index));
+            questionBlock.appendChild(initAnswers(data[index].question));
             var userAnswers = [];
 
-            var question = {};
+            // for pause functional
+            testPause = {id: data.id};
+            testPause['questions'] = [];
+
+            var question = {}, points = 0, testData = data;
             $(document).on("click", ".reply", function () {
                 var answers = searchFields();
-                var questionId = data.questions[index].id;
-                // userAnswers.push(question);
-                question[questionId] = answers;
-                console.log(question);
-                index++;
-                if (data.questions[index] !== undefined) {
-                    questionBlock.innerHTML = '';
-                    questionBlock.appendChild(initQuestion(data.questions, index));
-                    questionBlock.appendChild(initAnswers(data.questions[index]));
-                } else {
-                    $(".reply").remove();
-                    $.ajax({
-                        type: "POST",
-                        url: "http://127.0.0.1:8000/tests/check",
-                        data: {test: testId, answers: question},
-                        success: function (data) {
-                            data = (typeof data === 'string') ? JSON.parse(data) : data;
-                            $(".testing-block").append("<h4>Your score in the direction: " + data.userResult.result + "</h4>");
-                            console.log(data);
-                        }
-                    });
+                var questionId = data[index].question.id;
+
+                // for pause functional
+                testPause['questions'].push(data[index].question);
+                delete testPause['questions'][index]['answers'];
+                testPause['questions'][index]['answers'] = [];
+                for (var answerIndex in answers) {
+                    testPause['questions'][index]['answers'].push(answers[answerIndex]);
                 }
+
+                $.ajax({
+                    type: "POST",
+                    url: "http://127.0.0.1:8000/answers/check",
+                    data: {
+                        test: testId,
+                        question: questionId,
+                        answers: answers
+                    },
+                    success: function (data) {
+                        data = (typeof data === 'string') ? JSON.parse(data) : data;
+                        console.log(data);
+                        // points += data.points;
+                        index++;
+                        if (testData[index].question !== undefined) {
+                            questionBlock.innerHTML = '';
+                            questionBlock.appendChild(initQuestion(testData, index));
+                            questionBlock.appendChild(initAnswers(testData[index].question));
+                        } /*else {
+                            console.log(points);
+                        }*/
+                    }
+                });
+
+                // userAnswers.push(question);
+                // question[questionId] = answers;
+                // console.log(question);
+                // index++;
+                // if (data[index] !== undefined) {
+                //     questionBlock.innerHTML = '';
+                //     questionBlock.appendChild(initQuestion(data, index));
+                //     questionBlock.appendChild(initAnswers(data[index].question));
+                // } else {
+                //     $(".reply").remove();
+                //     console.log(question)
+                    // $.ajax({
+                    //     type: "POST",
+                    //     url: "http://127.0.0.1:8000/tests/check",
+                    //     data: {test: testId, answers: question},
+                    //     success: function (data) {
+                    //         data = (typeof data === 'string') ? JSON.parse(data) : data;
+                    //         $(".testing-block").append("<h4>Your score in the direction: " + data.userResult.result + "</h4>");
+                    //         console.log(data);
+                    //     }
+                    // });
+                // }
             });
+
+            $(document).on("click", ".pause-test", function () {
+                $.ajax({
+                    type: "PUT",
+                    url: "http://127.0.0.1:8000/save-test",
+                    data: {test: JSON.stringify(testPause)},
+                    success: function (data) {
+                        $(".message").text("Test on pause");
+                        console.log(data);
+                    }
+                })
+            })
         }
     });
 })();

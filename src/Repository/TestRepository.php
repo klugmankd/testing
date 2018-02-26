@@ -13,30 +13,16 @@ class TestRepository extends ServiceEntityRepository
         parent::__construct($registry, Test::class);
     }
 
-
-    public function findIds($direction, $difficulty)
+    /*
+    public function findBySomething($value)
     {
         return $this->createQueryBuilder('t')
-            ->select('t.id')
-            ->where('t.direction = :direction')
-            ->andWhere('t.difficulty = :difficulty')
-            ->setParameter('direction', $direction)
-            ->setParameter('difficulty', $difficulty)
+            ->where('t.something = :value')->setParameter('value', $value)
             ->orderBy('t.id', 'ASC')
+            ->setMaxResults(10)
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
-
-    public function findAccessible($direction, $userPoints)
-    {
-        return $this->createQueryBuilder('t')
-            ->where('t.direction = :direction')
-            ->andWhere('t.occurrence <= :points')
-            ->setParameter('direction', $direction)
-            ->setParameter('points', $userPoints)
-            ->orderBy('t.difficulty', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getResult();
-    }
+    */
 }

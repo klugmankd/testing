@@ -2,12 +2,27 @@
 
 {% block body %}
     <div class="testing-block"
-         data-difficulty="{{ difficulty }}"
-         data-direction="{{ direction }}">
+        data-difficulty="{{ difficulty }}"
+        data-direction="{{ direction }}">
         <h3>Test</h3>
         <hr>
         <div class="question-block"></div>
         <div class="reply">reply</div>
+        <div class="pause-test">pause</div>
+        <h3 class="message"></h3>
+        {#<ol>
+            {% for question in questions %}
+                <li>
+                    {{ question.question.text }}
+                    <ul>
+                        {% for answer in question.question.answers %}
+                            <li>{{ answer.text }}</li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                </li>
+            {% endfor %}
+        </ol>#}
     </div>
 {% endblock %}
 

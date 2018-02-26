@@ -5,24 +5,24 @@
         <ul class="list">
             {% for difficulty in difficulties %}
                 <li class="item">
-                    {% if difficulty.accessible %}
+                    {#{% if difficulty.accessible %}#}
                     <a href="{{
-                    path('start_test', {'difficulty': difficulty.id, 'direction': direction})
+                    path('app_test', {'difficultyName': difficulty.name, 'directionName': direction})
                     }}">
                         {{ difficulty.name }}
-                        {% if (difficulty.passed) %}
-                            (Passed)
-                        {% elseif (not difficulty.passed)%}
-                            {% if (difficulty.didNotPass and not difficulty.passed) %}
-                                (Did not pass)
-                            {% else %}
-                                (Not passed)
-                            {% endif %}
-                        {% endif %}
+                        {#{% if (difficulty.passed) %}#}
+                            {#(Passed)#}
+                        {#{% elseif (not difficulty.passed)%}#}
+                            {#{% if (difficulty.didNotPass and not difficulty.passed) %}#}
+                                {#(Did not pass)#}
+                            {#{% else %}#}
+                                {#(Not passed)#}
+                            {#{% endif %}#}
+                        {#{% endif %}#}
                     </a>
-                    {% else %}
-                        {{ difficulty.name }}
-                    {% endif %}
+                    {#{% else %}#}
+                        {#{{ difficulty.name }}#}
+                    {#{% endif %}#}
                 </li>
             {% endfor %}
         </ul>
