@@ -35,6 +35,12 @@ class User implements UserInterface
     private $admin;
 
     /**
+     * @var boolean $testOnPause
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $testOnPause;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="user")
      * @ORM\JoinColumn(name="last_test_id", referencedColumnName="id")
      */
@@ -177,6 +183,22 @@ class User implements UserInterface
     public function setLastTest($lastTest): void
     {
         $this->lastTest = $lastTest;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTestOnPause(): bool
+    {
+        return $this->testOnPause;
+    }
+
+    /**
+     * @param bool $testOnPause
+     */
+    public function setTestOnPause(bool $testOnPause): void
+    {
+        $this->testOnPause = $testOnPause;
     }
 
 }

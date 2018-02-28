@@ -8,6 +8,7 @@
         "jms/serializer": "^1.11",
         "knpuniversity/oauth2-client-bundle": "^1.17",
         "league/oauth2-google": "^2.0",
+        "nelmio/cors-bundle": "^1.5",
         "overtrue/socialite": "^2.0",
         "php-http/guzzle6-adapter": "^1.1",
         "php-http/httplug-bundle": "^1.8",

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
+use App\Service\AnswerManager;
 use JMS\Serializer\SerializerBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -12,6 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AnswerController extends Controller
 {
+
+    private $answerManager;
+
+    public function __construct(AnswerManager $answerManager)
+    {
+        $this->answerManager = $answerManager;
+    }
+
     /**
      * @Route("/answers", name="answers_create")
      * @Method({"POST"})
@@ -138,49 +147,10 @@ class AnswerController extends Controller
      */
     public function checkAnswerAction(Request $request)
     {
-        $entityManager = $this->getDoctrine()
-            ->getManager();
-        $userId = $request->getSession()
-            ->get('user')
-            ->getId();
+        $response = $this->answerManager
+            ->setAnswer($request, $this->getUser());
 
-        $user = $this->getDoctrine()
-            ->getRepository('App:User')
-            ->find($userId);
-
-        $userAnswers = $request->get('answers');
-
-        $questionId = $request->get('question');
-
-        $question = $this->getDoctrine()
-            ->getRepository('App:Question')
-            ->find($questionId);
-
-        $testId = $request->get('test');
-
-        $test = $this->getDoctrine()
-            ->getRepository('App:Test')
-            ->find($testId);
-
-        $userQuestion = $this->getDoctrine()
-            ->getRepository('App:UserQuestions')
-            ->findOneBy([
-                'user' => $user,
-                'question' => $question,
-                'test' => $test
-            ]);
-
-        $userAnswers = json_encode($userAnswers);
-        $userQuestion->setAnswers($userAnswers);
-        $userQuestion->setWasPassed(true);
-        $entityManager->persist($userQuestion);
-        $entityManager->flush();
-
-        $serializer = SerializerBuilder::create()->build();
-        $jsonResponse = $serializer->serialize($userQuestion, 'json');
-        return $this->json(
-            $jsonResponse
-        );
+        return $this->json($response);
     }
 
 }

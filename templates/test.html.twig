@@ -2,8 +2,8 @@
 
 {% block body %}
     <div class="testing-block"
-        data-difficulty="{{ difficulty }}"
-        data-direction="{{ direction }}">
+         data-difficulty="{{ difficulty }}"
+         data-direction="{{ direction }}">
         <h3>Test</h3>
         <hr>
         <div class="question-block"></div>
@@ -28,6 +28,10 @@
 
 {% block javascripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="{{ asset('js/testing.js') }}"></script>
+    {% if (pause) %}
+        <script src="{{ asset('js/return-to-testing.js') }}"></script>
+    {% else %}
+        <script src="{{ asset('js/testing.js') }}"></script>
+    {% endif %}
 {% endblock %}
 

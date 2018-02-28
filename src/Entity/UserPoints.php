@@ -30,6 +30,12 @@ class UserPoints
     private $direction;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Difficulty")
+     * @ORM\JoinColumn(name="current_level_id", referencedColumnName="id")
+     */
+    private $currentLevel;
+
+    /**
      * @ORM\Column(type="float")
      */
     private $points;
@@ -77,7 +83,7 @@ class UserPoints
     /**
      * @param mixed $points
      */
-    public function setPoints($points): void
+    public function setPoints($points = 0): void
     {
         $this->points = $points;
     }
@@ -88,5 +94,21 @@ class UserPoints
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrentLevel()
+    {
+        return $this->currentLevel;
+    }
+
+    /**
+     * @param mixed $currentLevel
+     */
+    public function setCurrentLevel($currentLevel): void
+    {
+        $this->currentLevel = $currentLevel;
     }
 }

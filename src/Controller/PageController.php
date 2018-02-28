@@ -20,9 +20,25 @@ class PageController extends Controller
      */
     public function index(Request $request)
     {
+        $user = $this->getUser();
+
+        if ($user->isTestOnPause()) {
+            $test = $this->getDoctrine()
+                ->getRepository('App:UserQuestions')
+                ->findOneBy(['test' => $user->getLastTest()]);
+            $direction = $test->getQuestion()->getDirection();
+            $difficulty = $test->getQuestion()->getDifficulty();
+            return $this->render("home.html.twig", [
+                "direction" => $direction,
+                "difficulty" => $difficulty,
+                "pause" => $user->isTestOnPause()
+            ]);
+        }
+
         return ($request->getSession()->get("user")) ?
-            $this->render("home.html.twig"):
+            $this->render("home.html.twig", ["pause" => false]) :
             $this->redirect('/connect/google');
+//        return $this->redirect("http://localhost:8080/#/directions");
     }
 
     /**
@@ -44,9 +60,25 @@ class PageController extends Controller
      */
     public function difficulties($name)
     {
+        $user = $this->getUser();
+
+        $direction = $this->getDoctrine()
+            ->getRepository('App:Direction')
+            ->findOneBy(['name' => $name]);
+
+        $userPoints = $this->getDoctrine()
+            ->getRepository('App:UserPoints')
+            ->findOneBy([
+                'direction' => $direction,
+                'user' => $user
+            ]);
+        $currentLevel = 1;
+        if (!is_null($userPoints)) {
+            $currentLevel = $userPoints->getCurrentLevel();
+        }
         $difficulties = $this->getDoctrine()
             ->getRepository('App:Difficulty')
-            ->findAll();
+            ->findByCurrentLevel($currentLevel);
 
         return $this->render("choose-difficulty.html.twig", [
             "difficulties" => $difficulties,
@@ -71,70 +103,66 @@ class PageController extends Controller
             ->findOneBy(['name' => $difficultyName]);
 
         if ($request->isXmlHttpRequest()) {
-
+// const
             $questionsCount = 5;
 
             $entityManager = $this->getDoctrine()
                 ->getManager();
 
-            $userId = $request->getSession()
-                ->get('user')
-                ->getId();
-            $user = $this->getDoctrine()
-                ->getRepository('App:User')
-                ->find($userId);
+            $user = $this->getUser();
+
             $userQuestions = array();
-            $test = 0;
-            if (!is_null($user->getLastTest())) {
-                $userQuestionsPassed = $this->getDoctrine()
-                    ->getRepository('App:UserQuestions')
-                    ->findBy([
-                        'user' => $user,
-                        'wasPassed' => true,
-                        'test' => $user->getLastTest()
-                    ]);
-                $userQuestionsAll = $this->getDoctrine()
-                    ->getRepository('App:UserQuestions')
-                    ->findBy([
-                        'user' => $user,
-                        'test' => $user->getLastTest()->getId()
-                    ]);
-                $userQuestions = (count($userQuestionsPassed) < $questionsCount) ?
-                    $userQuestionsAll : array();
-                $test = $user->getLastTest();
+//            if (!is_null($user->getLastTest())) {
+//                $userQuestionsPassed = $this->getDoctrine()
+//                    ->getRepository('App:UserQuestions')
+//                    ->findBy([
+//                        'user' => $user,
+//                        'wasPassed' => true,
+//                        'test' => $user->getLastTest()
+//                    ]);
+//                $userQuestionsAll = $this->getDoctrine()
+//                    ->getRepository('App:UserQuestions')
+//                    ->findBy([
+//                        'user' => $user,
+//                        'test' => $user->getLastTest()->getId()
+//                    ]);
+//
+//                $userQuestions = (count($userQuestionsPassed) == $questionsCount) ?
+//                    $userQuestionsAll : array();
+//                $test = $user->getLastTest();
+//            }
+
+//            if (count($userQuestions) == 0) {
+            $test = new Test();
+            $test->setTime(60);
+            $test->addUser($user);
+            $user->setLastTest($test);
+            $entityManager->persist($test);
+            $entityManager->persist($user);
+
+            $questions = $this->getDoctrine()
+                ->getRepository('App:Question')
+                ->findBy([
+                    "direction" => $direction,
+                    "difficulty" => $difficulty
+                ]);
+
+            $questionsMaxIndex = count($questions) - 1;
+
+            for ($index = 0; $index < $questionsCount; $index++) {
+                $randIndex = rand(0, $questionsMaxIndex);
+                if (in_array($questions[$randIndex], $userQuestions)) continue;
+                $userQuestion = new UserQuestions();
+                $userQuestion->setUser($user);
+                $userQuestion->setTest($test);
+                $userQuestion->setQuestion($questions[$randIndex]);
+                $userQuestion->setAnswers('');
+                $userQuestion->setWasPassed(false);
+                $entityManager->persist($userQuestion);
+                $userQuestions[] = $userQuestion;
             }
-
-            if (count($userQuestions) == 0) {
-                $test = new Test();
-                $test->setTime(60);
-                $test->addUser($user);
-                $user->setLastTest($test);
-                $entityManager->persist($test);
-                $entityManager->persist($user);
-
-                $questions = $this->getDoctrine()
-                    ->getRepository('App:Question')
-                    ->findBy([
-                        "direction" => $direction,
-                        "difficulty" => $difficulty
-                    ]);
-
-                $questionsMaxIndex = count($questions) - 1;
-
-                for ($index = 0; $index < $questionsCount; $index++) {
-                    $randIndex = rand(0, $questionsMaxIndex);
-                    if (in_array($questions[$randIndex], $userQuestions)) continue;
-                    $userQuestion = new UserQuestions();
-                    $userQuestion->setUser($user);
-                    $userQuestion->setTest($test);
-                    $userQuestion->setQuestion($questions[$randIndex]);
-                    $userQuestion->setAnswers('');
-                    $userQuestion->setWasPassed(false);
-                    $entityManager->persist($userQuestion);
-                    $userQuestions[] = $userQuestion;
-                }
-                $entityManager->flush();
-            }
+            $entityManager->flush();
+//            }
             $userQuestions['length'] = count($userQuestions);
             $userQuestions['id'] = $test->getId();
             $serializer = SerializerBuilder::create()->build();
@@ -143,41 +171,65 @@ class PageController extends Controller
         } else {
             return $this->render("test.html.twig", [
                 "direction" => $directionName,
-                "difficulty" => $difficultyName
+                "difficulty" => $difficultyName,
+                "pause" => false
             ]);
         }
 
     }
 
     /**
-     * @Route("/session")
+     * @Route("/directions/{directionName}/{difficultyName}/pause", name="app_test_pause")
      * @param Request $request
+     * @param $directionName
+     * @param $difficultyName
+     * @return \Symfony\Component\HttpFoundation\JsonResponse|Response
+     */
+    public function returnToPause(Request $request, $directionName, $difficultyName)
+    {
+        $user = $this->getUser();
+
+        if ($request->isXmlHttpRequest()) {
+            $userQuestions = $this->getDoctrine()
+                ->getRepository('App:UserQuestions')
+                ->findBy([
+                    'user' => $user,
+                    'wasPassed' => false,
+                    'test' => $user->getLastTest()->getId()
+                ]);
+            $userQuestions['length'] = count($userQuestions);
+            $userQuestions['id'] = $user->getLastTest()->getId();
+            $serializer = SerializerBuilder::create()->build();
+            $jsonResponse = $serializer->serialize($userQuestions, 'json');
+            return $this->json($jsonResponse);
+        } else {
+            $user->setTestOnPause(false);
+            $entityManager = $this->getDoctrine()
+                ->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->render("test.html.twig", [
+                "direction" => $directionName,
+                "difficulty" => $difficultyName,
+                "pause" => true
+            ]);
+        }
+    }
+
+    /**
+     * @Route("/api/session/{token}")
+     * @param $token
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function userSession(Request $request)
+    public function userSession($token)
     {
-        $userId = $request->getSession()
-            ->get('user')
-            ->getId();
-//
-//
-        $user = $this->getDoctrine()
-            ->getRepository('App:User')
-            ->find($userId);
-//        $direction = $this->getDoctrine()
-//            ->getRepository('App:Direction')
-//            ->find(1);
-//        $userPoints = new UserPoints();
-//        $userPoints->setUser($user);
-//        $userPoints->setDirection($direction);
-//        $userPoints->setPoints(0);
-//        $entityManager = $this->getDoctrine()
-//            ->getManager();
-//        $entityManager->persist($userPoints);
-//        $entityManager->flush();
-//
-//        $serializer = SerializerBuilder::create()->build();
-//        $jsonResponse = $serializer->serialize($userPoints, 'json');
-        return $this->json($user);
+//        $authToken = $this->container->get('security.token_storage')->getToken();
+//        $user = $au->getUser();
+//        $user = $token->getUser();
+//        $user = ;
+        $serializer = SerializerBuilder::create()->build();
+        $jsonResponse = $serializer->serialize($user, 'json');
+        return $this->json($jsonResponse);
     }
 }

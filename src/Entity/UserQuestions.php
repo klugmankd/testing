@@ -35,13 +35,13 @@ class UserQuestions
     private $question;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="questions")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Test")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Test", inversedBy="questions")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id")
      */
     private $test;

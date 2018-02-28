@@ -2,14 +2,107 @@
 
 namespace App\Controller;
 
+use App\Entity\Test;
 use App\Entity\UserPoints;
+use App\Entity\UserQuestions;
+use App\Service\AnswerManager;
+use App\Service\PauseManager;
+use App\Service\TestManager;
 use JMS\Serializer\SerializerBuilder;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 class TestController extends Controller
 {
+    private $questionsCount = 20;
+    private $testManager;
+    private $answerManager;
+    private $pauseManager;
+
+    public function __construct(TestManager $testManager,
+                                AnswerManager $answerManager,
+                                PauseManager $pauseManager)
+    {
+        $this->testManager = $testManager;
+        $this->answerManager = $answerManager;
+        $this->pauseManager = $pauseManager;
+    }
+
+    /**
+     * @Route("/api/test/{direction}/{difficulty}", name="app_test_create")
+     * @Method({"POST"})
+     * @param $direction
+     * @param $difficulty
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function createAction($direction, $difficulty)
+    {
+        $questions = $this->testManager
+            ->createTest($this->getUser(), $direction, $difficulty, $this->questionsCount);
+
+        return $this->json($questions['length'] > 0);
+    }
+
+    /**
+     * @Route("/api/test/current")
+     */
+    public function currentTestAction()
+    {
+        $test = $this->getUser()
+            ->getLastTest();
+
+        $serializer = SerializerBuilder::create()->build();
+        $response = $serializer->serialize($test, 'json');
+        return $this->json($response);
+    }
+
+    /**
+     * @Route("/api/test/current/answer")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function answerAction(Request $request)
+    {
+        if (!$request->get('questionIsLast')) {
+            $response = $this->answerManager
+                ->setAnswer($request, $this->getUser());
+        } else {
+            $response = $this->testManager
+                ->check($request, $this->getUser());
+        }
+
+        return $this->json($response);
+    }
+
+    /**
+     * @Route("/api/test/pause", name="save_test")
+     * @Method({"PUT"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function pauseTestAction(Request $request)
+    {
+        $response = $this->pauseManager
+            ->setPause($request, $this->getUser());
+
+        return $this->json($response);
+    }
+
+    /**
+     * @Route("/save-test", name="save_test")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function pauseAction(Request $request)
+    {
+        $response = $this->pauseManager
+            ->setPause($request, $this->getUser());
+
+        return $this->json($response);
+    }
+
     /**
      * @Route("/test/check", name="test_check")
      * @param Request $request
@@ -17,69 +110,9 @@ class TestController extends Controller
      */
     public function checkAction(Request $request)
     {
-        $userId = $request->getSession()->get('user')->getId();
-        $user = $this->getDoctrine()
-            ->getRepository('App:User')
-            ->find($userId);
-        $testId = $request->get('test');
-        $test = $this->getDoctrine()
-            ->getRepository('App:Test')
-            ->find($testId);
-        $userQuestions = $this->getDoctrine()
-            ->getRepository('App:UserQuestions')
-            ->findBy([
-                'user' => $user,
-                'test' => $test
-            ]);
-        $direction = $userQuestions[0]->getQuestion()->getDirection();
-        $userPoints = $this->getDoctrine()
-            ->getRepository('App:UserPoints')
-            ->findOneBy([
-                'direction' => $direction,
-                'user' => $user
-            ]);
+        $response = $this->testManager
+            ->check($request, $this->getUser());
 
-        if (is_null($userPoints)) {
-            $userPoints = new UserPoints();
-            $userPoints->setUser($user);
-            $userPoints->setDirection($direction);
-            $userPoints->setPoints(0);
-        }
-
-        $userAnswers = array();
-        foreach ($userQuestions as $userQuestion) {
-            $questionId = $userQuestion->getQuestion()->getId();
-            foreach ($userQuestion->getQuestion()->getAnswers() as $answer) {
-                if ($answer->isCorrect()) {
-                    $userAnswers[$questionId]['trueAnswers'][] = $answer->getId();
-                }
-            }
-            $userAnswers[$questionId]['userAnswers'] = json_decode($userQuestion->getAnswers());
-
-            $isCorrect = false;
-            foreach ($userAnswers[$questionId]['userAnswers'] as $userAnswer) {
-                $condition = in_array($userAnswer, $userAnswers[$questionId]['trueAnswers']);
-                $isCorrect = $isCorrect ||
-                    in_array($userAnswer, $userAnswers[$questionId]['trueAnswers']);
-                if ($condition) {
-                    $questionPoints = $userQuestion->getQuestion()
-                        ->getPoints();
-                    $resultPoints = $userPoints->getPoints() + $questionPoints;
-                    $userPoints->setPoints($resultPoints);
-                }
-            }
-            $userAnswers[$questionId]['isCorrect'] = $isCorrect;
-        }
-        $entityManager = $this->getDoctrine()
-            ->getManager();
-        $entityManager->persist($userPoints);
-        $entityManager->flush();
-
-
-        $serializer = SerializerBuilder::create()->build();
-        $jsonResponse = $serializer->serialize($userAnswers, 'json');
-        return $this->json(
-            $jsonResponse
-        );
+        return $this->json($response);
     }
 }

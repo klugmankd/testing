@@ -13,16 +13,27 @@ class DifficultyRepository extends ServiceEntityRepository
         parent::__construct($registry, Difficulty::class);
     }
 
-    /*
-    public function findBySomething($value)
+
+    public function findByCurrentLevel($currentLevel)
     {
         return $this->createQueryBuilder('d')
-            ->where('d.something = :value')->setParameter('value', $value)
+            ->where('d.level <= :currentLevel')
+            ->setParameter('currentLevel', $currentLevel)
             ->orderBy('d.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+    public function findByNextLevel($currentLevel)
+    {
+        return $this->createQueryBuilder('d')
+            ->where('d.level > :currentLevel')
+            ->setParameter('currentLevel', $currentLevel)
+            ->orderBy('d.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 }

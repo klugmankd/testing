@@ -3,28 +3,43 @@
 {% block body %}
     <div class="difficulties-block">
         <ul class="list">
-            {% for difficulty in difficulties %}
-                <li class="item">
-                    {#{% if difficulty.accessible %}#}
-                    <a href="{{
-                    path('app_test', {'difficultyName': difficulty.name, 'directionName': direction})
-                    }}">
-                        {{ difficulty.name }}
-                        {#{% if (difficulty.passed) %}#}
+            {#{% if difficulties | length > 1 %}#}
+                {% for difficulty in difficulties %}
+                    <li class="item">
+                        {#{% if difficulty.accessible %}#}
+                        <a href="{{
+                        path('app_test', {'difficultyName': difficulty.name, 'directionName': direction})
+                        }}">
+                            {{ difficulty.name }}
+                            {#{% if (difficulty.passed) %}#}
                             {#(Passed)#}
-                        {#{% elseif (not difficulty.passed)%}#}
+                            {#{% elseif (not difficulty.passed)%}#}
                             {#{% if (difficulty.didNotPass and not difficulty.passed) %}#}
-                                {#(Did not pass)#}
+                            {#(Did not pass)#}
                             {#{% else %}#}
-                                {#(Not passed)#}
+                            {#(Not passed)#}
                             {#{% endif %}#}
-                        {#{% endif %}#}
-                    </a>
-                    {#{% else %}#}
+                            {#{% endif %}#}
+                        </a>
+                        {#{% else %}#}
                         {#{{ difficulty.name }}#}
-                    {#{% endif %}#}
+                        {#{% endif %}#}
+                    </li>
+                {% endfor %}
+            {#{% else %}
+                <li class="item">
+                    #}{#{% if difficulty.accessible %}#}{#
+                    <a href="{{
+                    path('app_test', {'difficultyName': difficulties.name, 'directionName': direction})
+                    }}">
+                        {{ difficulties.name }}
+
+                    </a>
+                    #}{#{% else %}#}{#
+                    #}{#{{ difficulty.name }}#}{#
+                    #}{#{% endif %}#}{#
                 </li>
-            {% endfor %}
+            {% endif %}#}
         </ul>
     </div>
 {% endblock %}

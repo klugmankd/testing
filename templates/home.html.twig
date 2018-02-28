@@ -1,11 +1,17 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="main-block">
-    <h2>Testing</h2>
-    <br>
-    <a href="{{ path('app_directions') }}">Choose direction</a>
-</div>
+    <div class="main-block">
+        <h2>Testing</h2>
+        <br>
+        <a href="{{ path('app_directions') }}">Choose direction</a>
+        {% if pause %}
+            <a href="{{ path('app_test_pause',
+                {'difficultyName': difficulty.name, 'directionName': direction.name}) }}">
+                Return to pause test
+            </a>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block javascripts %}

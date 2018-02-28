@@ -55,22 +55,32 @@ var searchFields = function () {
     $.ajax({
         type: "GET",
         url: "http://127.0.0.1:8000/directions/" + direction+ "/" + difficulty,
-        data: {"pause": false},
+        data: {"pause": true},
         success: function (data) {
             data = (typeof data === 'string') ? JSON.parse(data) : data;
             console.log(data);
             var testId = data.id;
+            var changedData = {};
+            var dataIndex = 0;
             for (var index = 0; index < data.length; index++) {
                 var question = data[index].question;
-                for (var inIndex = 0; inIndex < question.answers.length; inIndex++) {
-                    var answer = question.answers[inIndex];
-                    delete answer['is_correct'];
+                if (data[index].was_passed) {
+                    delete data[index];
+                } else {
+                    changedData[dataIndex] = data[index];
+                    dataIndex++;
+                    for (var inIndex = 0; inIndex < question.answers.length; inIndex++) {
+                        var answer = question.answers[inIndex];
+                        delete answer['is_correct'];
+                    }
                 }
             }
+            data = changedData;
             console.log(data);
 
             var questionBlock = document.querySelector(".question-block");
             index = 0;
+            console.log(data[index]);
             questionBlock.appendChild(initQuestion(data, index));
             questionBlock.appendChild(initAnswers(data[index].question));
             var userAnswers = [];

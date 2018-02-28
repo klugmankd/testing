@@ -1,0 +1,24 @@
+Route                   Action          Http-method
+/                       home            {GET}
+
+/connect/google         connect         {GET}
+/connect/google/check   check           {POST}
+
+/directions             readAll         {GET}
+/directions/{id}        read            {GET}
+
+/test                   create          {POST}
+/test/{id}              read            {GET}
+/test/{id}/pause        pauseTest       {PUT}
+/test/current           currentTest     {GET}
+
+/points/{direction}     read            {GET}
+/points/{direction}     update          {PUT}
+
+/questions              create          {POST}
+/questions              readAll         {GET}
+/questions/{question}   update          {PUT}
+
+
+/currentTest/questions
+/currentTest/answer

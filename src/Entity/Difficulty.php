@@ -22,6 +22,16 @@ class Difficulty
     private $name;
 
     /**
+     * @var boolean $accessible
+     */
+    private $accessible = false;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $level;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -43,5 +53,37 @@ class Difficulty
     public function setName($name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccessible(): bool
+    {
+        return $this->accessible;
+    }
+
+    /**
+     * @param bool $accessible
+     */
+    public function setAccessible(bool $accessible): void
+    {
+        $this->accessible = $accessible;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param mixed $level
+     */
+    public function setLevel($level): void
+    {
+        $this->level = $level;
     }
 }

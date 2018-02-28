@@ -65,12 +65,14 @@ class GoogleController extends Controller
 
         $request->getSession()->set("user", $user);
         $role = ($user->isAdmin()) ? ['ROLE_ADMIN'] : ['ROLE_USER'];
-        $token = new UsernamePasswordToken($user->getUsername(), null, 'main', $role);
+        $token = new UsernamePasswordToken($user, null, 'main', $role);
         $this->container->get('security.token_storage')->setToken($token);
+        $request->getSession()->set("token", $token);
 
         $event = new InteractiveLoginEvent($request, $token);
 
         $this->container->get('event_dispatcher')->dispatch('security.interactive_login', $event);
+//        return $this->redirect('http://localhost:8080/#/login/' . $token);
         return $this->redirectToRoute('app_home');
     }
 

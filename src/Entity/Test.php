@@ -34,7 +34,7 @@ class Test
     private $user;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserQuestions", mappedBy="question")
+     * @ORM\OneToMany(targetEntity="App\Entity\UserQuestions", mappedBy="test")
      */
     private $questions;
 

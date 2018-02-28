@@ -9,9 +9,6 @@ use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class AuthManager
 {
-    private $clientId;
-    private $clientSecret;
-    private $redirectUrl;
     private $config;
     private $driver;
 
