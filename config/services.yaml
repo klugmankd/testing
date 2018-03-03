@@ -37,3 +37,6 @@ services:
     auth_service:
         class: App\Service\AuthManager
         autowire: true
+    App\EventListener\RequestListener:
+          tags:
+              - { name: kernel.event_listener, event: kernel.request }

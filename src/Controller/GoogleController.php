@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Service\AuthManager;
+use App\Service\TokenManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,10 +16,13 @@ class GoogleController extends Controller
 {
 
     private $authManager;
+    private $tokenManager;
 
-    public function __construct(AuthManager $authManager)
+    public function __construct(AuthManager $authManager,
+                                TokenManager $tokenManager)
     {
         $this->authManager = $authManager;
+        $this->tokenManager = $tokenManager;
     }
 
     /**
@@ -67,13 +71,24 @@ class GoogleController extends Controller
         $role = ($user->isAdmin()) ? ['ROLE_ADMIN'] : ['ROLE_USER'];
         $token = new UsernamePasswordToken($user, null, 'main', $role);
         $this->container->get('security.token_storage')->setToken($token);
-        $request->getSession()->set("token", $token);
 
         $event = new InteractiveLoginEvent($request, $token);
 
         $this->container->get('event_dispatcher')->dispatch('security.interactive_login', $event);
-//        return $this->redirect('http://localhost:8080/#/login/' . $token);
-        return $this->redirectToRoute('app_home');
+
+        $token = $this->getDoctrine()
+            ->getRepository('App:UserToken')
+            ->findOneBy(['user' => $user]);
+        if (!is_null($token)) {
+            $token = $this->tokenManager
+                ->generateToken($user);
+            $this->tokenManager
+                ->save($token);
+        }
+//        $request->getSession()->set("token", $token->getToken());
+
+
+        return $this->redirect('http://localhost:8080/#/login/' . $token);
     }
 
 }

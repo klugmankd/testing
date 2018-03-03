@@ -13,7 +13,7 @@ class TestRepository extends ServiceEntityRepository
         parent::__construct($registry, Test::class);
     }
 
-    /*
+
     public function findBySomething($value)
     {
         return $this->createQueryBuilder('t')
@@ -24,5 +24,5 @@ class TestRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
-    */
+
 }

@@ -3,14 +3,22 @@
 namespace App\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class DirectionController
+ * @package App\Controller
+ * @Security("has_role('ROLE_USER')")
+ */
 class DirectionController extends Controller
 {
 
     /**
-     * @Route("/api/directions", name="app_directions")
+     * @Route("/api/directions", name="api_directions")
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function readActionAll()
     {
@@ -22,7 +30,7 @@ class DirectionController extends Controller
     }
 
     /**
-     * @Route("/api/directions/{name}", name="app_difficulties")
+     * @Route("/api/directions/{name}", name="api_difficulties")
      * @param $name
      * @return Response
      */

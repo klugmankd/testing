@@ -218,18 +218,17 @@ class PageController extends Controller
     }
 
     /**
-     * @Route("/api/session/{token}")
-     * @param $token
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @Route("/api/session")
+     * @param Request $request
+     * @return Response
      */
-    public function userSession($token)
-    {
-//        $authToken = $this->container->get('security.token_storage')->getToken();
-//        $user = $au->getUser();
-//        $user = $token->getUser();
-//        $user = ;
-        $serializer = SerializerBuilder::create()->build();
-        $jsonResponse = $serializer->serialize($user, 'json');
-        return $this->json($jsonResponse);
+    public function userSession(Request $request)
+    {/*
+        $token = $this->getDoctrine()
+            ->getRepository('App:UserToken')
+            ->findOneBy(['user' => $this->getUser()])
+            ->getToken();*/
+        $token = $request->getSession()->get('token');
+        return new Response($token);
     }
 }

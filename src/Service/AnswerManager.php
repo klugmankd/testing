@@ -22,6 +22,8 @@ class AnswerManager
     public function setAnswer(Request $request, User $user)
     {
         $testId = $request->get('test');
+        var_dump($testId);
+        exit;
         $answers = $request->get('answers');
         $questionId = $request->get('question');
 

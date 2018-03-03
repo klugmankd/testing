@@ -8,11 +8,13 @@ use App\Entity\UserQuestions;
 use App\Service\AnswerManager;
 use App\Service\PauseManager;
 use App\Service\TestManager;
+use App\Service\TokenManager;
 use JMS\Serializer\SerializerBuilder;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TestController extends Controller
 {
@@ -20,14 +22,17 @@ class TestController extends Controller
     private $testManager;
     private $answerManager;
     private $pauseManager;
+    private $tokenManager;
 
     public function __construct(TestManager $testManager,
                                 AnswerManager $answerManager,
-                                PauseManager $pauseManager)
+                                PauseManager $pauseManager,
+                                TokenManager $tokenManager)
     {
         $this->testManager = $testManager;
         $this->answerManager = $answerManager;
         $this->pauseManager = $pauseManager;
+        $this->tokenManager = $tokenManager;
     }
 
     /**
@@ -40,7 +45,10 @@ class TestController extends Controller
     public function createAction($direction, $difficulty)
     {
         $questions = $this->testManager
-            ->createTest($this->getUser(), $direction, $difficulty, $this->questionsCount);
+            ->createTest($this->getUser(),
+                $direction,
+                $difficulty,
+                $this->questionsCount);
 
         return $this->json($questions['length'] > 0);
     }
@@ -59,7 +67,8 @@ class TestController extends Controller
     }
 
     /**
-     * @Route("/api/test/current/answer")
+     * @Route("/api/test/answer")
+     * @Method({"POST"})
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
@@ -114,5 +123,17 @@ class TestController extends Controller
             ->check($request, $this->getUser());
 
         return $this->json($response);
+    }
+
+    /**
+     * @Route("/test/route")
+     */
+    public function test()
+    {
+        $user = $this->getUser();
+        $token = $this->tokenManager
+            ->generateToken($user);
+
+        return new Response($token);
     }
 }

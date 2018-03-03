@@ -46,6 +46,11 @@ class User implements UserInterface
      */
     private $lastTest;
 
+    public function __toString()
+    {
+        return $this->id . '-' . $this->email . '-' . $this->googleId;
+    }
+
     /**
      * @return mixed
      */

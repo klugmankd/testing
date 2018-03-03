@@ -196,4 +196,5 @@ class TestManager
             $userPoints->setCurrentLevel($level[0]);
         }
     }
+
 }
